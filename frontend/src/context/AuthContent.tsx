@@ -14,7 +14,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if user is logged in on page refresh
+  // Check if user is logged in
   useEffect(() => {
     const checkUser = async () => {
       if(user){
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
     checkUser();
-  }, []);
+  }, [user]);
 
   const login = (userData: any) => setUser(userData);
   const logout = () => {
