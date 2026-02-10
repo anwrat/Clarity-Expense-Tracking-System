@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -18,7 +18,7 @@ model User{
   email String @unique
   name String @unique
   password String
-  transcations Transaction[]
+  transactions Transaction[]
   createdAt DateTime @default(now())
 }
 
