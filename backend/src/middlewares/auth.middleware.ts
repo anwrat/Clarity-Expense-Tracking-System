@@ -9,7 +9,7 @@ export const authenticateToken = (req:Request, res: Response, next: NextFunction
             return res.status(401).json({message:'Access Denied. No token provided'});
         }
         //Verifying token
-        const decoded = jwt.verify(token,process.env.JWT_SECRET as string) as {id: number,name: string ,email: string};
+        const decoded = jwt.verify(token,process.env.JWT_SECRET as string) as {id: string,name: string ,email: string};
         req.user = decoded;
         next();
     }catch(err){
