@@ -1,11 +1,9 @@
-import dotenv from 'dotenv';
-import pkg from 'pg';
+import 'dotenv/config'
+import { PrismaClient } from '@prisma/client/extension'
+import { PrismaNeon } from '@prisma/adapter-neon'
 
-dotenv.config();
+const adapter = new PrismaNeon({
+  connectionString: process.env.DATABASE_URL!,
+})
 
-const {Pool} = pkg;
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
-
-export default pool;
+export const prisma = new PrismaClient({ adapter })
