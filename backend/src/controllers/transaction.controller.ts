@@ -43,3 +43,26 @@ export const getAllTransactions = async(req: Request, res: Response)=>{
         res.status(500).json({success: false, message: "Internal Server Error while fetching all transactions"});
     }
 }
+
+export const deleteTransaction = async(req: Request, res: Response)=>{
+    try{
+        const {id} = req.params;
+        const userId = req.user?.id;
+        if(!userId){
+            return res.status(401).json({success: false, message: "Unauthorized: No user Id found"});
+        }
+        const deleted = await prisma.transaction.deleteMany({
+            where:{
+                id: id as string,
+                userId: userId,
+            }
+        });
+        if(deleted.count === 0){
+            return res.status(404).json({success: false, message: "Transaction not found or unauthorized"});
+        }
+        return res.status(200).json({success: true, message: "Transaction deleted"});
+    }catch(err){
+        console.error(err);
+        return res.status(500).json({success: false, message: "Internal Server Error while deleting transaction"});
+    }
+}
