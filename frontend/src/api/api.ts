@@ -7,3 +7,7 @@ export function loginUser(email: string, password: string){
 export function registerUser(name: string, email: string, password: string){
     return api.post('/api/auth/register',{name,email,password});
 }
+
+export function getMe(){
+    return api.get('/api/auth/me');
+}

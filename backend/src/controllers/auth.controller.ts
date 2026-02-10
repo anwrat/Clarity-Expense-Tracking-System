@@ -31,7 +31,7 @@ export const login = async(req:Request, res: Response)=>{
         const token = signToken({id: user.id, name: user.name, email: user.email});
         res.cookie("token",token,{
             httpOnly: true,
-            secure: true,
+            secure: false,
             sameSite: 'strict',
             maxAge: 2*24*60*60*1000 //2 days in milliseconds
         });
