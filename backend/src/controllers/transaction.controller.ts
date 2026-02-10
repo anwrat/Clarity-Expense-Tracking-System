@@ -1,5 +1,6 @@
 import type{ Request, Response } from "express";
 import { prisma } from "../config/db.js";
+import { updateTransactionSchema } from "../schemas/transaction.schema.js";
 
 export const addTransaction = async(req: Request, res: Response) =>{
     try{
@@ -64,5 +65,30 @@ export const deleteTransaction = async(req: Request, res: Response)=>{
     }catch(err){
         console.error(err);
         return res.status(500).json({success: false, message: "Internal Server Error while deleting transaction"});
+    }
+}
+
+export const updateTransaction = async(req: Request, res: Response)=>{
+    try{
+        const {id} = req.params;
+        const userId = req.user?.id;
+        if(!userId){
+            return res.status(401).json({success: false, message: "Unauthorized: No user Id found"});
+        }
+        const validation = updateTransactionSchema.safeParse(req.body);
+        if(!validation.success){
+            return res.status(400).json({success: false, message: validation.error.flatten().fieldErrors});
+        }
+        const updatedTransaction = await prisma.transaction.updateMany({
+            where:{
+                id: id as string,
+                userId: userId,
+            },
+            data: validation.data as any,
+        });
+        return res.status(200).json({success: true, message: "Transaction update successful", data: updatedTransaction});
+    }catch(err){
+        console.error(err);
+        return res.status(500).json({success: false, message: "Internal Server Error while updating transaction"});
     }
 }
