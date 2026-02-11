@@ -2,10 +2,17 @@ import type{ Request,Response } from "express";
 import { hashPassword, comparePassword } from "../utils/hash.js";
 import { signToken } from "../utils/jwt.js";
 import {prisma} from '../config/db.js';
+import { success } from "zod";
 
 export const register = async (req: Request, res: Response)=>{
     try{
         const {name,email,password} = req.body;
+        const existingUser = await prisma.user.findUnique({
+            where:{email}
+        });
+        if(existingUser){
+            return res.status(400).json({success: false, message: "The email is already registered."});
+        }
         const hashedPassword = await hashPassword(password);
         const user = await prisma.user.create({
             data:{name,email,password:hashedPassword}
