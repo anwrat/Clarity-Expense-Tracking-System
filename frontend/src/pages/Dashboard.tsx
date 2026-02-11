@@ -1,77 +1,75 @@
-import { useEffect, useState } from "react";
-import { getTransactions, deleteTransaction } from "../api/api";
+import { useEffect, useState, useMemo } from "react";
+import { getTransactions } from "../api/api";
+import SummaryCards from "../components/SummaryCards";
+import TransactionItem from "../components/TransactionItem";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Dashboard() {
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchTransactions = async () => {
     try {
       const { data } = await getTransactions();
-      setTransactions(data.data || []); 
+      setTransactions(data.data || []);
     } catch (err) {
-      toast.error("Failed to load transactions");
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this transaction?")) return;
-    
-    try {
-      await deleteTransaction(id);
-      toast.success("Transaction removed");
-      fetchTransactions(); 
-    } catch (err) {
-      toast.error("Could not delete");
+      toast.error("Could not load transactions");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => { fetchTransactions(); }, []);
 
+  const stats = useMemo(() => {
+    return transactions.reduce((acc, t) => {
+      const amt = Number(t.amount);
+      if (t.type === 'INCOME') {
+        acc.income += amt;
+        acc.balance += amt;
+      } else {
+        acc.expenses += amt;
+        acc.balance -= amt;
+      }
+      return acc;
+    }, { income: 0, expenses: 0, balance: 0 });
+  }, [transactions]);
+
+  if (loading){
+    <LoadingSpinner />
+  }
+
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Recent Transactions</h2>
-      
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="p-4 font-semibold text-gray-600">Date</th>
-              <th className="p-4 font-semibold text-gray-600">Category</th>
-              <th className="p-4 font-semibold text-gray-600">Description</th>
-              <th className="p-4 font-semibold text-gray-600 text-right">Amount</th>
-              <th className="p-4 font-semibold text-gray-600 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id} className="border-b hover:bg-gray-50 transition">
-                <td className="p-4 text-sm text-gray-500">
-                  {new Date(t.date).toLocaleDateString()}
-                </td>
-                <td className="p-4 font-medium">{t.category}</td>
-                <td className="p-4 text-gray-600 text-sm">{t.description || "-"}</td>
-                <td className={`p-4 text-right font-bold ${t.type === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>
-                  {t.type === 'INCOME' ? '+' : '-'}${t.amount.toFixed(2)}
-                </td>
-                <td className="p-4 text-center">
-                  <button 
-                    onClick={() => {/* Open Edit Modal */}}
-                    className="text-blue-600 hover:text-blue-800 mr-3"
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(t.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      <SummaryCards stats={stats} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Your Overview</h2>
+            <Link 
+                to="/add-transaction"
+                className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-all flex items-center gap-2"
+            >
+                <span>+</span> Add New
+            </Link>
+        </div>
+
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Recent Transactions</h3>
+            <div className="space-y-3">
+              {transactions.length === 0 ? (
+                <p className="text-gray-500 text-center py-10">No transactions yet.</p>
+              ) : (
+                transactions.map((t) => (
+                  <TransactionItem key={t.id} transaction={t} refresh={fetchTransactions} />
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

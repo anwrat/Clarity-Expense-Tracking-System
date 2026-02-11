@@ -3,20 +3,16 @@ import { useAuth } from "./context/AuthContent";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import AddTransactionPage from "./pages/AddTransaction";
 import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function App() {
   const { user, loading } = useAuth();
 
-  // 1. Handle the "Initial Boot" state
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-        <span className="ml-3 text-gray-600 font-medium">Loading Clarity...</span>
-      </div>
-    );
+    <LoadingSpinner />
   }
 
   return (
@@ -42,6 +38,11 @@ export default function App() {
           <Route 
             path="/dashboard" 
             element={user ? <Dashboard /> : <Navigate to="/login" replace />} 
+          />
+
+          <Route 
+            path="/add-transaction" 
+            element={user ? <AddTransactionPage /> : <Navigate to="/login" />} 
           />
 
           {/* Global Redirects */}

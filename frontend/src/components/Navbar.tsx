@@ -24,14 +24,14 @@ export default function Navbar() {
               <img 
                 src={mainlogo} 
                 alt="Clarity Logo" 
-                className="h-8 w-auto object-contain" // Limits height and maintains aspect ratio
+                className="h-8 w-auto object-contain" 
               />
               <span className="ml-2 text-xl font-bold bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent hidden xs:block">
                 Clarity
               </span>
             </Link>
 
-            <div className="hidden md:flex items-center gap-1">
+            {/* <div className="hidden md:flex items-center gap-1">
               <NavLink 
                 to="/dashboard" 
                 className={({ isActive }) => 
@@ -42,7 +42,7 @@ export default function Navbar() {
               >
                 Dashboard
               </NavLink>
-            </div>
+            </div> */}
           </div>
 
           {/* Right Side: User Controls */}
