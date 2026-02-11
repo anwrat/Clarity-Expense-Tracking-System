@@ -31,7 +31,7 @@ export const login = async(req:Request, res: Response)=>{
         const token = signToken({id: user.id, name: user.name, email: user.email});
         res.cookie("token",token,{
             httpOnly: true,
-            secure: false,
+            secure: true,
             sameSite: 'strict',
             maxAge: 2*24*60*60*1000 //2 days in milliseconds
         });
@@ -66,4 +66,13 @@ export const getCurrentUser = async(req: Request, res: Response) =>{
         console.error(err);
         return res.status(500).json({success: false, message: "Internal Server Error while getting current user"});
     }
+}
+
+export const logOutUser = async (req: Request, res: Response) =>{
+    res.clearCookie('token',{
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+    });
+    return res.status(200).json({message: 'User logged out successfully'});
 }
