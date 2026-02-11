@@ -13,10 +13,12 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const { data } = await loginUser(email, password);
       if (data.success) {
-        login(data.user); // Save user to global state
+        login(data.data); // Save user to global state
+        console.log("Login data: ",data.user);
         toast.success('Welcome back!');
         navigate("/dashboard"); // Redirect
       }

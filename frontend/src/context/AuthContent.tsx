@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { getMe } from "../api/api"; 
+import { getMe,logOutUser } from "../api/api"; 
 
 interface AuthContextType {
   user: any;
@@ -17,10 +17,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check if user is logged in
   useEffect(() => {
     const checkUser = async () => {
-      if(user){
-        setLoading(false);
-        return;
-      }
       try {
         const { data } = await getMe();
         setUser(data.data);
@@ -31,11 +27,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
     checkUser();
-  }, [user]);
+  }, []);
 
-  const login = (userData: any) => setUser(userData);
-  const logout = () => {
-    setUser(null);
+  const login = (userData: any) =>{
+    setUser(userData);
+    setLoading(false);
+  } 
+  const logout = async() => {
+    try{
+      setLoading(true);
+      await logOutUser();
+      setUser(null);
+    }catch(err){
+      console.error("Logout failed: ",err);
+    }finally{
+      setLoading(false);
+    }
   };
 
   return (
