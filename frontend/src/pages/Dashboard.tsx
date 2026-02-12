@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from "react";
 import { getTransactions } from "../api/api";
 import SummaryCards from "../components/SummaryCards";
 import TransactionItem from "../components/TransactionItem";
-import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 
@@ -15,7 +14,7 @@ export default function Dashboard() {
       const { data } = await getTransactions();
       setTransactions(data.data || []);
     } catch (err) {
-      toast.error("Could not load transactions");
+      console.error("Could not load transactions: ",err);
     } finally {
       setLoading(false);
     }
