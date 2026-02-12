@@ -20,7 +20,7 @@ export function getTransactions(){
     return api.get('/api/transaction/');
 }
 
-export function addTransaction(data: FormData){
+export function addTransaction(data: any){
     return api.post('/api/transaction/',data);
 }
 
@@ -28,6 +28,6 @@ export function deleteTransaction(id:string){
     return api.delete(`/api/transaction/${id}`);
 }
 
-export function updateTransaction(id:string, data: FormData){
+export function updateTransaction(id:string, data: any){
     return api.put(`/api/transaction/${id}`,data);
 }
