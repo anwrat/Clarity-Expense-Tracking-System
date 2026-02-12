@@ -4,13 +4,13 @@ import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import mainlogo from '../assets/claritylogo.png';
 import { ChevronDown, LogOut, AlertCircle } from "lucide-react";
-import Modal from "./Modal"; // Import our new component
+import Modal from "./Modal"; 
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false); 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
