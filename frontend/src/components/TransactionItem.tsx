@@ -1,11 +1,14 @@
 import { deleteTransaction } from "../api/api";
 import toast from "react-hot-toast";
-import { Trash } from "lucide-react";
+import { Trash, Pencil } from "lucide-react"; 
+import { useNavigate } from "react-router-dom";
 
 export default function TransactionItem({ transaction, refresh }: { transaction: any, refresh: () => void }) {
+  const navigate = useNavigate();
   const isIncome = transaction.type === 'INCOME';
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation(); 
     if (!window.confirm("Are you sure?")) return;
     try {
       await deleteTransaction(transaction.id);
@@ -14,6 +17,10 @@ export default function TransactionItem({ transaction, refresh }: { transaction:
     } catch (err) {
       toast.error("Failed to delete");
     }
+  };
+
+  const handleEdit = () => {
+    navigate(`/edit-transaction/${transaction.id}`, { state: { transaction } });
   };
 
   return (
@@ -36,10 +43,20 @@ export default function TransactionItem({ transaction, refresh }: { transaction:
             {new Date(transaction.date).toLocaleDateString()}
           </p>
         </div>
-        <Trash
-          onClick={handleDelete}
-          className="group-hover:opacity-100 text-red-500 transition-all cursor-pointer"
-        />
+
+        {/* Action Icons */}
+        <div className="flex gap-2 transition-all">
+          <Pencil
+            size={18}
+            onClick={handleEdit}
+            className="text-indigo-500 hover:text-indigo-700 cursor-pointer"
+          />
+          <Trash
+            size={18}
+            onClick={handleDelete}
+            className="text-red-500 hover:text-red-700 cursor-pointer"
+          />
+        </div>
       </div>
     </div>
   );

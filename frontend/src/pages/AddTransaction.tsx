@@ -20,17 +20,25 @@ export default function AddTransactionPage() {
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
+  // Validation logic per step
+  const isStepInvalid = () => {
+    if (step === 1) return !formData.amount || parseFloat(formData.amount) <= 0;
+    if (step === 2) return !formData.category || !formData.date;
+    return false;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.amount || !formData.category) return toast.error("Please fill required fields");
-    
     setLoading(true);
+
     try {
       const payload = {
         ...formData,
         amount: parseFloat(formData.amount),
-        date: new Date(formData.date).toISOString()
+        // Ensures Prisma receives a valid ISO-8601 DateTime string
+        date: new Date(formData.date).toISOString() 
       };
+
       await addTransaction(payload); 
       toast.success("Transaction recorded!");
       navigate("/dashboard");
@@ -43,6 +51,7 @@ export default function AddTransactionPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-12 p-6">
+      {/* Header: Progress & Close */}
       <div className="flex items-center gap-6 mb-8">
         <div className="flex-1 flex justify-between items-center px-2">
           {[1, 2, 3].map((num) => (
@@ -59,11 +68,9 @@ export default function AddTransactionPage() {
           ))}
         </div>
         
-        {/* The Close Button */}
         <button 
           onClick={() => navigate("/dashboard")}
-          className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-          title="Cancel and go back"
+          className="p-2 rounded-full cursor-pointer bg-gray-100 text-red-500 transition-colors"
         >
           <X size={24} />
         </button>
@@ -71,13 +78,12 @@ export default function AddTransactionPage() {
 
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 min-h-105 flex flex-col relative overflow-hidden">
         
-        {/* Step Content */}
         <div className="flex-1">
           {/* STEP 1: Type & Amount */}
           {step === 1 && (
             <div className="animate-in slide-in-from-right-8 fade-in duration-300">
               <h2 className="text-2xl font-black text-gray-800 mb-2">How much?</h2>
-              <p className="text-gray-500 mb-8">Enter the transaction amount and type.</p>
+              <p className="text-gray-500 mb-8">Pick a type and enter the amount.</p>
               
               <div className="flex p-1.5 bg-gray-100 rounded-2xl mb-8">
                 <button
@@ -111,7 +117,7 @@ export default function AddTransactionPage() {
           {step === 2 && (
             <div className="animate-in slide-in-from-right-8 fade-in duration-300">
               <h2 className="text-2xl font-black text-gray-800 mb-2">Details</h2>
-              <p className="text-gray-500 mb-8">Categorize this transaction.</p>
+              <p className="text-gray-500 mb-8">Where did this {formData.type.toLowerCase()} go?</p>
               
               <div className="space-y-6">
                 <div>
@@ -122,12 +128,12 @@ export default function AddTransactionPage() {
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
                   >
                     <option value="">Select Category</option>
-                    <option value="Food">🍔 Food & Dining</option>
-                    <option value="Rent">🏠 Rent/Housing</option>
-                    <option value="Salary">💰 Salary/Income</option>
-                    <option value="Transport">🚗 Transport</option>
-                    <option value="Shopping">🛍️ Shopping</option>
-                    <option value="Entertainment">🎬 Entertainment</option>
+                    <option value="Food">Food & Dining</option>
+                    <option value="Rent">Rent/Housing</option>
+                    <option value="Salary">Salary/Income</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Entertainment">Entertainment</option>
                   </select>
                 </div>
                 <div>
@@ -146,10 +152,10 @@ export default function AddTransactionPage() {
           {/* STEP 3: Description */}
           {step === 3 && (
             <div className="animate-in slide-in-from-right-8 fade-in duration-300">
-              <h2 className="text-2xl font-black text-gray-800 mb-2">Final touches</h2>
-              <p className="text-gray-500 mb-8">Add a small note for future reference.</p>
+              <h2 className="text-2xl font-black text-gray-800 mb-2">Almost done</h2>
+              <p className="text-gray-500 mb-8">Add a note to remember this later.</p>
               
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Description</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Description (Optional)</label>
               <textarea
                 autoFocus
                 className="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-2xl text-lg font-semibold outline-none min-h-40 transition-all resize-none"
@@ -161,12 +167,12 @@ export default function AddTransactionPage() {
           )}
         </div>
 
-        {/* Action Buttons */}
+        {/* Footer Buttons */}
         <div className="flex gap-4 mt-10">
           {step > 1 && (
             <button
               onClick={prevStep}
-              className="px-6 py-4 rounded-2xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-all flex items-center gap-2 active:scale-95"
+              className="px-6 py-4 rounded-2xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-all active:scale-95"
             >
               <ArrowLeft size={20} />
             </button>
@@ -175,8 +181,8 @@ export default function AddTransactionPage() {
           {step < 3 ? (
             <button
               onClick={nextStep}
-              disabled={step === 1 && !formData.amount}
-              className="flex-1 py-4 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-100 active:scale-[0.98]"
+              disabled={isStepInvalid()}
+              className="flex-1 py-4 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:grayscale-[0.5] disabled:cursor-not-allowed shadow-lg shadow-indigo-100 active:scale-[0.98]"
             >
               Next Step <ArrowRight size={20} />
             </button>

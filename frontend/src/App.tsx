@@ -4,6 +4,7 @@ import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AddTransactionPage from "./pages/AddTransaction";
+import UpdateTransactionPage from "./pages/UpdateTransaction";
 import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
 import LoadingSpinner from "./components/LoadingSpinner";
@@ -12,7 +13,7 @@ export default function App() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    <LoadingSpinner />
+     return <LoadingSpinner />
   }
 
   return (
@@ -44,6 +45,8 @@ export default function App() {
             path="/add-transaction" 
             element={user ? <AddTransactionPage /> : <Navigate to="/login" />} 
           />
+
+          <Route path="/edit-transaction/:id" element={user ? <UpdateTransactionPage /> : <Navigate to="/login" />} />
 
           {/* Global Redirects */}
           <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
